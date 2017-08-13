@@ -1,0 +1,112 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+      "name": "GeoServer",
+      "creationTimestamp": null,
+      "annotations": {
+          "description": "GeoServer Template",
+          "iconClass": "icon-database",
+          "tags": "geoserver, spatial server"
+      }
+    },
+    "objects": [
+      {
+        "apiVersion": "v1",
+        "kind": "PersistentVolumeClaim",
+        "metadata": {
+          "name": "geodata"
+          },
+         "spec": {
+           "accessModes": [
+             "ReadWriteMany"
+           ],
+           "resources": {
+             "requests": {
+                "storage": "2Gi"
+              }
+            }
+          }
+      },
+      {
+        "kind": "DeploymentConfig",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "geoserver",
+            "creationTimestamp": null
+        },
+        "spec": {
+            "strategy": {
+                "type": "Recreate",
+                "resources": {}
+            },
+            "triggers": [{
+                "type": "ConfigChange"
+            }],
+            "replicas": 1,
+            "selector": {
+                "name": "geoserver"
+            },
+            "template": {
+                "metadata": {
+                    "creationTimestamp": null,
+                    "labels": {
+                        "name": "geoserver"
+                    }
+                },
+                "spec": {
+                    "containers": [{
+                        "name": "geoserver",
+                        "image": "thesteve0/geoserver-fedora",
+                        "ports": [{
+                            "containerPort": 8080,
+                            "protocol": "TCP"
+                        }],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "securityContext": {
+                            "privileged": false
+                        },
+                        "volumeMounts": [{
+                            "mountPath": "/geoserver_data/data",
+                            "name": "geodata",
+                            "readOnly": false
+                        }]
+
+                    }],
+                    "volumes": [{
+                        "name": "geodata",
+                        "persistentVolumeClaim":{
+                          "claimName": "geodata"
+                        }
+                    }],
+
+                    "restartPolicy": "Always",
+                    "dnsPolicy": "ClusterFirst"
+                }
+            }
+        }
+    },{
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "geoserver",
+                "labels": {
+                    "name": "geoserver"
+                }
+            },
+            "spec": {
+                "ports": [{
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080
+                }],
+                "selector": {
+                    "name": "geoserver"
+                },
+                "type": "ClusterIP",
+                "sessionAffinity": "None"
+            }
+    }
+  ]
+}
