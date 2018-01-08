@@ -73,13 +73,13 @@
                         },
                         "volumeMounts": [{
                             "mountPath": "/geoserver_data/data",
-                            "name": "${SERVICE_NAME}-data}",
+                            "name": "${SERVICE_NAME}-data",
                             "readOnly": false
                         }]
 
                     }],
                     "volumes": [{
-                        "name": "${SERVICE_NAME}-data}",
+                        "name": "${SERVICE_NAME}-data",
                         "persistentVolumeClaim":{
                           "claimName": "${SERVICE_NAME}"
                         }
@@ -123,7 +123,11 @@
         "to": {
           "kind": "Service",
           "name": "${SERVICE_NAME}"
-        }
+        },
+				"tls":{
+					"termination":"edge",
+					"insecureEdgeTerminationPolicy": "Redirect"
+				}
       }
     }
   ],
