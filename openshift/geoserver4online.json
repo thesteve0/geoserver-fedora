@@ -1,0 +1,154 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+      "name": "${SERVICE_NAME}",
+      "creationTimestamp": null,
+      "annotations": {
+          "description": "GeoServer Template",
+          "iconClass": "icon-database",
+          "tags": "geoserver, spatial server"
+      }
+    },
+    "objects": [
+      {
+        "apiVersion": "v1",
+        "kind": "PersistentVolumeClaim",
+        "metadata": {
+          "name": "${SERVICE_NAME}"
+          },
+         "spec": {
+           "accessModes": [
+             "ReadWriteOnce"
+           ],
+           "resources": {
+             "requests": {
+                "storage": "${VOLUME_CAPACITY}"
+              }
+            }
+          }
+      },
+      {
+        "kind": "DeploymentConfig",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "${SERVICE_NAME}",
+            "creationTimestamp": null
+        },
+        "spec": {
+            "strategy": {
+                "type": "Recreate",
+                "resources": {}
+            },
+            "triggers": [{
+                "type": "ConfigChange"
+            }],
+            "replicas": 1,
+            "selector": {
+                "name": "${SERVICE_NAME}"
+            },
+            "template": {
+                "metadata": {
+                    "creationTimestamp": null,
+                    "labels": {
+                        "name": "${SERVICE_NAME}"
+                    }
+                },
+                "spec": {
+                    "containers": [{
+                        "name": "${SERVICE_NAME}",
+                        "image": "thesteve0/geoserver-fedora",
+                        "ports": [{
+                            "containerPort": 8080,
+                            "protocol": "TCP"
+                        }],
+                        "resources": {
+													"limits": {
+															"memory": "${MEMORY_LIMIT}"
+													}
+												},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "securityContext": {
+                            "privileged": false
+                        },
+                        "volumeMounts": [{
+                            "mountPath": "/geoserver_data/data",
+                            "name": "${SERVICE_NAME}-data}",
+                            "readOnly": false
+                        }]
+
+                    }],
+                    "volumes": [{
+                        "name": "${SERVICE_NAME}-data}",
+                        "persistentVolumeClaim":{
+                          "claimName": "${SERVICE_NAME}"
+                        }
+                    }],
+
+                    "restartPolicy": "Always",
+                    "dnsPolicy": "ClusterFirst"
+                }
+            }
+        }
+    },{
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${SERVICE_NAME}",
+                "labels": {
+                    "name": "${SERVICE_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [{
+                    "protocol": "TCP",
+                    "port": 8080,
+                    "targetPort": 8080
+                }],
+                "selector": {
+                    "name": "${SERVICE_NAME}"
+                },
+                "type": "ClusterIP",
+                "sessionAffinity": "None"
+            }
+    },
+		{
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${SERVICE_NAME}-route"
+      },
+      "spec": {
+        "host": "",
+        "to": {
+          "kind": "Service",
+          "name": "${SERVICE_NAME}"
+        }
+      }
+    }
+  ],
+	"parameters": [
+		{
+				"name": "SERVICE_NAME",
+				"displayName": "The name for the service ",
+				"description": "The name of the OpenShift Service exposed for geoserver.",
+				"value": "geoserver",
+				"required": true
+		},
+		{
+					"name": "VOLUME_CAPACITY",
+					"displayName": "Volume Capacity",
+					"description": "Volume space available for data, e.g. 512Mi, 2Gi.",
+					"value": "2Gi",
+					"required": true
+			},
+			{
+					"name": "MEMORY_LIMIT",
+					"displayName": "Memory Limit",
+					"description": "Maximum amount of memory the container can use.",
+					"value": "2Gi",
+					"required": true
+			}
+	]
+
+}
