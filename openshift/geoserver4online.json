@@ -2,7 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-      "name": "${SERVICE_NAME}",
+      "name": "GeoServer",
       "creationTimestamp": null,
       "annotations": {
           "description": "GeoServer Template",
