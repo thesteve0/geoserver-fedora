@@ -10,12 +10,12 @@ USER root
 RUN cd /tmp && wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.13.0/geoserver-2.13.0-war.zip && \
     unzip  geoserver-2.13.0-war.zip && \
     unzip geoserver.war -d geoserver && \
-    rm -rf /apache-tomcat-8.5.16/webapps/ROOT && \
-    mv geoserver /apache-tomcat-8.5.16/webapps/ROOT && \
+    rm -rf /apache-tomcat-8.5.29/webapps/ROOT && \
+    mv geoserver /apache-tomcat-8.5.29/webapps/ROOT && \
     mkdir -p $GEOSERVER_DATA_DIR && \
     rm -rf /tmp/*
 
-COPY files/WEB-INF/web.xml  /apache-tomcat-8.5.16/webapps/ROOT/WEB-INF/
+COPY files/WEB-INF/web.xml  /apache-tomcat-8.5.29/webapps/ROOT/WEB-INF/
 
 #Make a volume mount for the data dir
 VOLUME ["$GEOSERVER_DATA_DIR"]
