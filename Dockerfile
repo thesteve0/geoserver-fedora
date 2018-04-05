@@ -7,8 +7,8 @@ ENV GEOSERVER_DATA_DIR="/geoserver_data/data"
 USER root
 #install Geoserver
 #Download the geoserver war file  CHANGEME
-RUN cd /tmp && wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.11.2/geoserver-2.11.2-war.zip && \
-    unzip  geoserver-2.11.2-war.zip && \
+RUN cd /tmp && wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.13.0/geoserver-2.13.0-war.zip && \
+    unzip  geoserver-2.13.0-war.zip && \
     unzip geoserver.war -d geoserver && \
     rm -rf /apache-tomcat-8.5.16/webapps/ROOT && \
     mv geoserver /apache-tomcat-8.5.16/webapps/ROOT && \
